@@ -1,0 +1,6 @@
+{
+  "name": "Suuqa App - Somali Marketplace & Mobile APK Studio",
+  "description": "Somali multi-store marketplace platform with interactive customer portal, merchant dashboard, super admin console, and complete mobile APK build and export tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
