@@ -1,0 +1,61 @@
+name: Dhis Suuqso Pro APK (Build Android APK)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Badhan hal mar la gujiyo oo GitHub ku dhex jira
+
+jobs:
+  build-apk:
+    name: Dhis Android APK (Capacitor)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Soo deji koodhka (Checkout Repository)
+        uses: actions/checkout@v4
+
+      - name: 2. Diyaari Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Diyaari Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 4. Diyaari Android SDK Tools
+        uses: android-actions/setup-android@v3
+
+      - name: 5. Ku rakib xirmooyinka mashruuca (Install Dependencies)
+        run: |
+          npm install
+
+      - name: 6. Dhis koodhka Production-ka ee Vite (Build Web)
+        run: |
+          npm run build
+
+      - name: 7. Diyaari Capacitor Android Platform
+        run: |
+          npm install --no-save @capacitor/core @capacitor/cli @capacitor/android
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+
+      - name: 8. Dhis APK-ga iyadoo la adeegsanayo Gradle (Assemble APK)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+
+      - name: 9. Soo bandhig oo soo deji APK-ga (Upload APK Artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Suuqso-Pro-Android-APK
+          path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 30
