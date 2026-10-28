@@ -1,0 +1,59 @@
+name: Dhis Suuqso Pro APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Dhis Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Soo deji koodhka
+        uses: actions/checkout@v4
+
+      - name: 2. Diyaari Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Diyaari Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 4. Diyaari Android SDK Tools
+        uses: android-actions/setup-android@v3
+
+      - name: 5. Ku rakib xirmooyinka mashruuca
+        run: |
+          npm install --legacy-peer-deps
+
+      - name: 6. Dhis koodhka Production-ka
+        run: |
+          npm run build
+
+      - name: 7. Diyaari Capacitor Android
+        run: |
+          npm install --no-save @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+
+      - name: 8. Dhis APK-ga (Gradle)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: 9. Soo deji APK-ga
+        uses: actions/upload-artifact@v4
+        with:
+          name: Suuqso-Pro-Android-APK
+          path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 30
